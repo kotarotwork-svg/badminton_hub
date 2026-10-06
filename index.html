@@ -2301,12 +2301,16 @@
             String(text).normalize('NFKC').split(/\r?\n/).forEach((raw, index) => {
                 const line = raw.trim();
                 if (!line) return;
+                // Accept Japanese dates such as 10月11日(日) and 2026年10月11日(日).
+                const parseLine = line
+                    .replace(/^(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/, '$1/$2/$3')
+                    .replace(/^(\d{1,2})月\s*(\d{1,2})日/, '$1/$2');
                 const yearMonth = line.match(/(\d{4})年\s*(\d{1,2})月/);
                 if (yearMonth) { year = Number(yearMonth[1]); month = Number(yearMonth[2]); }
                 const monthHeading = line.match(/^(\d{1,2})月\s*$/);
                 if (monthHeading) { month = Number(monthHeading[1]); return; }
-                const dateMatch = line.match(/^(?:(\d{4})[\/.-])?(\d{1,2})[\/.-](\d{1,2})(?:\s*日)?(?:\s*[\(（][^()（）]*[\)）])?\s*/) ||
-                    line.match(/^(\d{1,2})日(?:\s*[\(（][^()（）]*[\)）])?\s*/);
+                const dateMatch = parseLine.match(/^(?:(\d{4})[\/.-])?(\d{1,2})[\/.-](\d{1,2})(?:\s*日)?(?:\s*[\(（][^()（）]*[\)）])?\s*/) ||
+                    parseLine.match(/^(\d{1,2})日(?:\s*[\(（][^()（）]*[\)）])?\s*/);
                 if (!dateMatch) {
                     if (/練習|予定/.test(line)) {
                         const name = line.split(/[【\[]|\d{4}年|(?:今後の)?練習|予定/)[0]
@@ -2319,7 +2323,7 @@
                 const eventYear = isDayOnly ? year : Number(dateMatch[1] || year);
                 const eventMonth = isDayOnly ? month : Number(dateMatch[2]);
                 const day = isDayOnly ? Number(dateMatch[1]) : Number(dateMatch[3]);
-                const rest = line.slice(dateMatch[0].length);
+                const rest = parseLine.slice(dateMatch[0].length);
                 const timeMatch = rest.match(timePattern);
                 if (options.strictOrder && timeMatch && rest.slice(0, timeMatch.index).trim()) {
                     warnings.push((index + 1) + '行目：「日付 時間 場所」の順に入力してください（' + line + '）'); return;
