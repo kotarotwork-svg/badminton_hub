@@ -445,21 +445,11 @@
                 </div>
                 <label class="block text-xs font-medium text-gray-700" for="textScheduleInput">練習予定の文章（日付・時間・場所の順に1行ずつ）</label>
                 <textarea id="textScheduleInput" rows="7" oninput="invalidateTextSchedulePreview()" class="w-full p-3 border rounded-xl text-sm" placeholder="10/25(日) 9-12 淀川第一&#10;10/31(土) 15-18 浪速第一"></textarea>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="textScheduleMonth" class="block text-sm font-medium text-gray-700">基準の年月</label>
-                        <p class="text-xs text-gray-500 mt-1">年が書かれていない日付に使用します</p>
-                        <input id="textScheduleMonth" type="month" oninput="invalidateTextSchedulePreview()" class="w-full p-3 border rounded-lg mt-2 bg-white">
-                    </div>
-                    <div>
-                        <label for="textScheduleDuration" class="block text-sm font-medium text-gray-700">終了時刻がない場合</label>
-                        <p class="text-xs text-gray-500 mt-1">開始から何時間後にするか</p>
-                        <div class="flex items-center gap-2 mt-2">
-                            <input id="textScheduleDuration" type="number" min="0.5" max="12" step="0.5" value="3" inputmode="decimal" oninput="invalidateTextSchedulePreview()" class="min-w-0 flex-1 p-3 border rounded-lg bg-white">
-                            <span class="text-sm text-gray-700 flex-shrink-0">時間</span>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-1">仮の終了時刻として表示します</p>
-                    </div>
+                <div>
+                    <label for="textScheduleMonth" class="block text-sm font-medium text-gray-700">基準の年月</label>
+                    <p class="text-xs text-gray-500 mt-1">年が書かれていない日付に使用します</p>
+                    <input id="textScheduleMonth" type="month" oninput="invalidateTextSchedulePreview()" class="w-full p-3 border rounded-lg mt-2 bg-white">
+                    <p class="text-xs text-gray-500 mt-2">終了時刻の記載がない予定は、自動的に3時間後で登録します。読み取り後の詳細欄で変更できます。</p>
                 </div>
                 <button type="button" onclick="previewTextSchedules()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium">文章を読み取る</button>
                 <p id="textScheduleResult" class="text-sm text-gray-700 whitespace-pre-line" role="status" aria-live="polite"></p>
@@ -2331,7 +2321,7 @@
             const [year, month] = monthInput.value.split('-').map(Number);
             const parsed = parseScheduleText(document.getElementById('textScheduleInput').value, {
                 year, month, circleName: circle.name, lockCircleName: true, strictOrder: true,
-                duration: document.getElementById('textScheduleDuration').value
+                duration: 3
             });
             textPreviewCircleId = circle.id;
             const rows = document.getElementById('textScheduleRows');
