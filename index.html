@@ -100,12 +100,24 @@
 
         /* Smartphone layout */
         @media (max-width: 640px) {
+            html, body {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+            header {
+                width: 100%;
+                max-width: 100%;
+            }
             .view-tabs {
                 display: grid;
                 grid-template-columns: repeat(5, minmax(0, 1fr));
-                padding-left: 0;
-                padding-right: 0;
-                overflow: visible;
+                width: 100%;
+                max-width: 100%;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden;
+                box-sizing: border-box;
             }
             .view-tabs .tab-btn {
                 min-width: 0;
@@ -140,6 +152,7 @@
                 min-width: 0;
                 max-width: 100%;
                 box-sizing: border-box;
+                text-align: center;
             }
         }
 
@@ -473,7 +486,7 @@
                 <div>
                     <label for="textScheduleMonth" class="block text-sm font-medium text-gray-700">基準の年月</label>
                     <p class="text-xs text-gray-500 mt-1">年が書かれていない日付に使用します</p>
-                    <input id="textScheduleMonth" type="month" oninput="invalidateTextSchedulePreview()" class="month-field w-full p-3 border rounded-lg mt-2 bg-white">
+                    <select id="textScheduleMonth" oninput="invalidateTextSchedulePreview()" class="month-field block w-full max-w-full p-3 border rounded-lg mt-2 bg-white"></select>
                     <p class="text-xs text-gray-500 mt-2">終了時刻の記載がない予定は、自動的に3時間後で登録します。読み取り後の詳細欄で変更できます。</p>
                 </div>
                 <button type="button" onclick="previewTextSchedules()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium">文章を読み取る</button>
@@ -2332,6 +2345,21 @@
             return { schedules, warnings };
         }
 
+        function populateTextScheduleMonths() {
+            const select = document.getElementById('textScheduleMonth');
+            if (select.options.length) return;
+            const now = new Date();
+            for (let year = now.getFullYear() - 2; year <= now.getFullYear() + 5; year++) {
+                for (let month = 1; month <= 12; month++) {
+                    const option = document.createElement('option');
+                    option.value = year + '-' + String(month).padStart(2, '0');
+                    option.textContent = year + '年' + month + '月';
+                    select.appendChild(option);
+                }
+            }
+            select.value = formatDate(now).slice(0, 7);
+        }
+
         function previewTextSchedules() {
             const result = document.getElementById('textScheduleResult');
             if (!document.getElementById('textNewCirclePanel').hidden) {
@@ -2579,6 +2607,7 @@
         window.onload = () => {
 
             loadData();
+            populateTextScheduleMonths();
             document.getElementById('textScheduleMonth').value = formatDate(new Date()).slice(0, 7);
 
             switchView('calendar');
